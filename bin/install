@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+
+# Exit, if return non-zero or use an undefined variable.
+set -eu
+
+cd "$(dirname "$0")/.."
+
+# Variables
+VERSION=${1:-1.29.2}
+
+os=$(./bin/os)
+distro=$(./bin/distro)
+
+if [ $os = windows ]; then
+	ARCHIVE_BASE=docker-compose-Windows-x86_64.exe
+elif [ $os = darwin ]; then
+	ARCHIVE_BASE=ocker-compose-Darwin-x86_64
+else
+	ARCHIVE_BASE=ocker-compose-Linux-x86_64
+fi
+
+DOWNLOAD_URL=https://github.com/docker/compose/releases/download/$VERSION/$ARCHIVE_BASE
+
+# Clean
+clean() {
+	rm -rf temp
+}
+
+# Start
+clean
+filename=$(./bin/download $DOWNLOAD_URL)
+
+rm -rf "versions/$VERSION"
+mkdir -p "versions/$VERSION/bin"
+if [ $os = windows ]; then
+	mv "$filename" "versions/$VERSION/bin/docker-compose.exe"
+elif [ $os = darwin ]; then
+	mv "$filename" "versions/$VERSION/bin/docker-compose"
+else
+	mv "$filename" "versions/$VERSION/bin/docker-compose"
+fi
